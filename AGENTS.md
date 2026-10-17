@@ -1,0 +1,3 @@
+# 3C Android Prototype repository rules
+
+Follow current sanchuang-dev/.github/AGENTS.md (main). This repository owns only the native Android WebView shell and its build/release workflow, not the H5 demonstration pages. The home URL is https://lab.3cgroup.cn/ . Keep Kotlin implementation minimal and avoid introducing unneeded frameworks or JSBridge. Do not expose native capabilities to arbitrary origins. GitHub Actions builds debug APK on PR/main, signed release on v* tags after signing secrets are configured. Treat CI and real-device runtime verification separately. Repository changes use small verifiable changes and an Issue as work item contract.
