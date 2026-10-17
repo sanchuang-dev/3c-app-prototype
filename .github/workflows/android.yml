@@ -25,10 +25,10 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
           test -n "$SDKMANAGER" && test -x "$SDKMANAGER" || { echo "Android sdkmanager unavailable under $ANDROID_HOME"; exit 1; }
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" --install "platforms;android-37" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '9.3.1'
       - name: Compile release variant (no distribution)
         run: gradle --no-daemon :app:assembleSystemRelease :app:assembleGeckoRelease
   release:
@@ -50,10 +50,10 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
           test -n "$SDKMANAGER" && test -x "$SDKMANAGER" || { echo "Android sdkmanager unavailable under $ANDROID_HOME"; exit 1; }
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" --install "platforms;android-37" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '9.3.1'
       - name: Verify signing configuration
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -74,7 +74,7 @@ jobs:
         run: |
           for APK in app/build/outputs/apk/system/release/app-system-release.apk app/build/outputs/apk/gecko/release/app-gecko-release.apk; do
             test -s "$APK"
-            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
           done
       - name: Publish installable APK
         env:
