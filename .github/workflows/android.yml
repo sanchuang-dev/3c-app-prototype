@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.10.2'
       - name: Compile release variant (no distribution)
-        run: gradle --no-daemon :app:assembleRelease
+        run: gradle --no-daemon :app:assembleSystemRelease :app:assembleGeckoRelease
   release:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
@@ -72,13 +72,15 @@ jobs:
         run: gradle --no-daemon :app:assembleRelease
       - name: Verify APK signature
         run: |
-          APK=app/build/outputs/apk/release/app-release.apk
-          test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          for APK in app/build/outputs/apk/system/release/app-system-release.apk app/build/outputs/apk/gecko/release/app-gecko-release.apk; do
+            test -s "$APK"
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          done
       - name: Publish installable APK
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p dist
-          cp app/build/outputs/apk/release/app-release.apk dist/3C-Prototype-${GITHUB_REF_NAME}.apk
-          gh release create "$GITHUB_REF_NAME" "dist/3C-Prototype-${GITHUB_REF_NAME}.apk" --generate-notes --title "3C Prototype $GITHUB_REF_NAME"
+          cp app/build/outputs/apk/system/release/app-system-release.apk "dist/3C-Prototype-${GITHUB_REF_NAME}.apk"
+          cp app/build/outputs/apk/gecko/release/app-gecko-release.apk "dist/3C-Prototype-Gecko-${GITHUB_REF_NAME}.apk"
+          gh release create "$GITHUB_REF_NAME" "dist/3C-Prototype-${GITHUB_REF_NAME}.apk" "dist/3C-Prototype-Gecko-${GITHUB_REF_NAME}.apk" --generate-notes --title "3C Prototype $GITHUB_REF_NAME"
