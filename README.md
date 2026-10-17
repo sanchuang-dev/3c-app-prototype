@@ -2,7 +2,7 @@
 
 三创通用 Android 原型播放器，启动加载 https://lab.3cgroup.cn/ 。H5 演示内容由 sanchuang-dev/base-prototype 独立维护。
 
-V0.1: Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换调试地址；默认不开放 JSBridge。
+V0.1: Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换调试地址；内置受来源限制的 JSBridge v1（见 [调用协议](docs/jsbridge.md)）。
 
 ## Build & install
 
