@@ -62,6 +62,7 @@ class MainActivity : Activity() {
             }
             setOnLongClickListener { showDebugAddress(); true }
         }
+        PrototypeBridge.install(browser)
         CookieManager.getInstance().setAcceptCookie(true)
         setContentView(browser)
         if (savedInstanceState == null) browser.loadUrl(activeUrl)
