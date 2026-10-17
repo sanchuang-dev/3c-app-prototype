@@ -5,6 +5,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import androidx.webkit.WebViewCompat
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -12,6 +14,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 
 class MainActivity : Activity() {
@@ -21,13 +26,21 @@ class MainActivity : Activity() {
         private const val KEY = "debug_url"
     }
     private lateinit var browser: WebView
+    private lateinit var updater: AppUpdater
     private var activeUrl = HOME
     private var errorVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activeUrl = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY, HOME) ?: HOME
-        browser = WebView(this).apply {
+        updater = AppUpdater(this)
+        val systemWebView = try { WebView(this) } catch (_: Exception) { null }
+        if (systemWebView == null) {
+            showMissingWebView()
+            updater.check(silent = true)
+            return
+        }
+        browser = systemWebView.apply {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.allowFileAccess = false
@@ -60,13 +73,73 @@ class MainActivity : Activity() {
                     }
                 }
             }
-            setOnLongClickListener { showDebugAddress(); true }
+            setOnLongClickListener { showNativeMenu(); true }
         }
         PrototypeBridge.install(browser)
         CookieManager.getInstance().setAcceptCookie(true)
         setContentView(browser)
         if (savedInstanceState == null) browser.loadUrl(activeUrl)
         else browser.restoreState(savedInstanceState)
+        updater.check(silent = true)
+    }
+
+    private fun showMissingWebView() {
+        val padding = (24 * resources.displayMetrics.density).toInt()
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(padding, padding, padding, padding)
+        }
+        layout.addView(TextView(this).apply {
+            text = "无法启动系统 WebView。请安装或更新设备的 Android System WebView / Chrome 内核组件，然后重新打开应用。应用内更新功能仍可使用。"
+            textSize = 17f
+        })
+        layout.addView(Button(this).apply {
+            text = "检查 3C Prototype 更新"
+            setOnClickListener { updater.check(silent = false) }
+        })
+        layout.addView(Button(this).apply {
+            text = "打开 Android 系统设置"
+            setOnClickListener {
+                try { startActivity(Intent(Settings.ACTION_SETTINGS)) }
+                catch (_: Exception) { Toast.makeText(this@MainActivity, "无法打开设置", Toast.LENGTH_SHORT).show() }
+            }
+        })
+        setContentView(layout)
+    }
+
+    private fun showNativeMenu() {
+        val actions = arrayOf("检查应用更新", "查看浏览器内核", "切换原型地址")
+        AlertDialog.Builder(this).setTitle("3C Prototype · 管理")
+            .setItems(actions) { _, selected ->
+                when (selected) {
+                    0 -> updater.check(silent = false)
+                    1 -> showWebViewInfo()
+                    2 -> showDebugAddress()
+                }
+            }.show()
+    }
+
+    private fun showWebViewInfo() {
+        val provider = WebViewCompat.getCurrentWebViewPackage(this)
+        val info = if (provider == null) {
+            "没有找到可用的系统 WebView。请在设备系统设置中安装或更新 WebView 组件。"
+        } else {
+            "当前内核：" + provider.packageName + "\n版本：" + provider.versionName +
+                "\n\n此 App 使用系统 WebView，不包含独立 Chromium 内核。较旧内核可能无法支持现代 H5。"
+        }
+        AlertDialog.Builder(this).setTitle("浏览器兼容性").setMessage(info)
+            .setPositiveButton("知道了", null)
+            .setNeutralButton("打开内核设置") { _, _ ->
+                val name = provider?.packageName
+                if (name != null) {
+                    try {
+                        startActivity(android.content.Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            android.net.Uri.parse("package:" + name)))
+                    } catch (_: Exception) {
+                        Toast.makeText(this, "无法打开系统设置", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.show()
     }
 
     private fun showDebugAddress() {
@@ -94,14 +167,21 @@ class MainActivity : Activity() {
 
     @Deprecated("Android legacy back callback")
     override fun onBackPressed() {
-        if (browser.canGoBack()) browser.goBack() else super.onBackPressed()
+        if (::browser.isInitialized && browser.canGoBack()) browser.goBack() else super.onBackPressed()
     }
     override fun onSaveInstanceState(outState: Bundle) {
-        browser.saveState(outState)
+        if (::browser.isInitialized) browser.saveState(outState)
         super.onSaveInstanceState(outState)
     }
+    @Deprecated("Legacy activity result for APK install permission")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        updater.onActivityResult(requestCode)
+    }
+
     override fun onDestroy() {
-        browser.destroy()
+        updater.destroy()
+        if (::browser.isInitialized) browser.destroy()
         super.onDestroy()
     }
 }

@@ -20,3 +20,14 @@ V0.1: Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换
 JDK 17、Android SDK 35、Gradle 8.10.2。手动本地编译命令 `gradle :app:assembleRelease`（未配置签名时产出未签名 APK，不能安装）。
 
 CI 通过不等于真机验收：还需检查首次加载、内部导航、返回、弱网重试、切换 URL、恢复默认首页和覆盖升级。
+
+## 应用内更新（v0.1.1 起）
+
+- 启动后后台检查 GitHub `/repos/sanchuang-dev/3c-app-prototype/releases/latest`，仅在发现比本机 `versionName` 更新的正式版本时提示。
+- 长按网页打开原生管理菜单：**检查应用更新 / 查看浏览器内核 / 切换原型地址**。
+- 找到新版本后自动读取 Release 的 `3C-Prototype-vX.Y.Z.apk` 资产地址，而不是把旧版本下载 URL 写死。
+- 下载使用 Android DownloadManager，原生界面显示进度、可取消；检查 APK 大小、GitHub 发布的 SHA-256（若提供）和 Android 包名，随后调用系统安装器；用户必须授权并确认安装。
+- 同一个应用必须复用稳定签名；发布后可覆盖安装。下载发生在原生容器中，不依赖 H5 正常加载。
+- 调试时可在管理菜单看到 Android System WebView 提供者名称和版本，并跳转至系统内核应用设置；**本版没有内置 Chrome/Chromium**，系统内核过旧时应通过设备系统渠道更新。若要完全内置独立内核，应另立 GeckoView 迁移项目，重做 JSBridge 并评估体积与兼容性。
+
+验收：GitHub CI Release 编译、真实 v0.1.1 签名包、从 v0.1.0 覆盖安装、正常下载与用户取消、断网/下载失败、安装权限处理、Android 7/8/13+ 真机路径。CI 不替代这些真机检查。

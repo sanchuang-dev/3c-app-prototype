@@ -9,8 +9,8 @@ android {
         applicationId = "cn.cgroup.prototype"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
     }
     val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
     val keystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
@@ -40,4 +40,5 @@ android {
 
 dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
+    implementation("androidx.core:core:1.13.1")
 }
