@@ -1,16 +1,33 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 android {
     namespace = "cn.cgroup.prototype"
-    compileSdk = 35
+    compileSdk = 37
     defaultConfig {
         applicationId = "cn.cgroup.prototype"
         minSdk = 24
         targetSdk = 35
         versionCode = 2
         versionName = "0.1.1"
+    }
+    buildFeatures { resValues = true }
+    flavorDimensions += "engine"
+    productFlavors {
+        create("system") {
+            dimension = "engine"
+            manifestPlaceholders["launcherActivity"] = ".MainActivity"
+            resValue("string", "app_name", "3C Prototype")
+            resValue("string", "apk_asset_prefix", "3C-Prototype-")
+        }
+        create("gecko") {
+            dimension = "engine"
+            applicationIdSuffix = ".gecko"
+            minSdk = 26
+            manifestPlaceholders["launcherActivity"] = ".GeckoActivity"
+            resValue("string", "app_name", "3C Prototype Gecko")
+            resValue("string", "apk_asset_prefix", "3C-Prototype-Gecko-")
+        }
     }
     val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
     val keystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
@@ -35,10 +52,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
     implementation("androidx.core:core:1.13.1")
+    add("geckoImplementation", "org.mozilla.geckoview:geckoview:158.0.20261007201254")
 }

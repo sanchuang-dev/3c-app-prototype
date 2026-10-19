@@ -92,7 +92,7 @@ class AppUpdater(private val activity: Activity) {
             require(!json.optBoolean("draft") && !json.optBoolean("prerelease")) { "非正式版本" }
             val tag = json.getString("tag_name")
             require(TAG.matches(tag)) { "版本号格式不合法" }
-            val name = "3C-Prototype-" + tag + ".apk"
+            val name = activity.getString(R.string.apk_asset_prefix) + tag + ".apk"
             val assets = json.getJSONArray("assets")
             val asset = (0 until assets.length()).map { assets.getJSONObject(it) }
                 .firstOrNull { it.optString("name") == name } ?: error("Release 未包含安装包")
@@ -119,10 +119,10 @@ class AppUpdater(private val activity: Activity) {
             message("下载不可用", "设备存储空间不可用")
             return
         }
-        val file = File(directory, "3C-Prototype-update.apk")
+        val file = File(directory, activity.packageName + "-update.apk")
         file.delete()
         val request = DownloadManager.Request(Uri.parse(release.download))
-            .setTitle("3C Prototype " + release.version)
+            .setTitle(activity.getString(R.string.app_name) + " " + release.version)
             .setDescription("下载正式更新包")
             .setMimeType("application/vnd.android.package-archive")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
