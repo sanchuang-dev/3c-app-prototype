@@ -65,9 +65,13 @@ class GeckoActivity : Activity() {
             setContentView(view)
             engine.webExtensionController.ensureBuiltIn(EXTENSION_PATH, EXTENSION_ID).accept(
                 { extension ->
-                    activeSession.webExtensionController.setMessageDelegate(
-                        extension, createBridgeDelegate(activeSession), NATIVE_APP_ID
-                    )
+                    if (extension == null) {
+                        Toast.makeText(this, "原生通信扩展不可用，网页仍可浏览", Toast.LENGTH_LONG).show()
+                    } else {
+                        activeSession.webExtensionController.setMessageDelegate(
+                            extension, createBridgeDelegate(activeSession), NATIVE_APP_ID
+                        )
+                    }
                     activeSession.loadUri(currentUrl)
                 },
                 { error ->
