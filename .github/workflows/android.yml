@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
       - name: Prepare Android SDK
         shell: bash
         run: |
@@ -25,10 +25,10 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
           test -n "$SDKMANAGER" && test -x "$SDKMANAGER" || { echo "Android sdkmanager unavailable under $ANDROID_HOME"; exit 1; }
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" --channel=3 --install "platforms;android-37.0" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '9.7.1'
       - name: Compile release variant (no distribution)
         run: gradle --no-daemon :app:assembleRelease
   release:
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
       - name: Prepare Android SDK
         shell: bash
         run: |
@@ -50,10 +50,10 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
           test -n "$SDKMANAGER" && test -x "$SDKMANAGER" || { echo "Android sdkmanager unavailable under $ANDROID_HOME"; exit 1; }
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" --channel=3 --install "platforms;android-37.0" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '9.7.1'
       - name: Verify signing configuration
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -80,5 +80,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p dist
-          cp app/build/outputs/apk/release/app-release.apk dist/3C-Prototype-${GITHUB_REF_NAME}.apk
-          gh release create "$GITHUB_REF_NAME" "dist/3C-Prototype-${GITHUB_REF_NAME}.apk" --generate-notes --title "3C Prototype $GITHUB_REF_NAME"
+          cp app/build/outputs/apk/release/app-release.apk dist/3C-Prototype-Chromium-${GITHUB_REF_NAME}.apk
+          gh release create "$GITHUB_REF_NAME" "dist/3C-Prototype-Chromium-${GITHUB_REF_NAME}.apk" --generate-notes --title "3C Prototype $GITHUB_REF_NAME"

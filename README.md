@@ -1,8 +1,8 @@
 # 3C Prototype · Android
 
-三创通用 Android 原型播放器，启动加载 https://lab.3cgroup.cn/ 。H5 演示内容由 sanchuang-dev/base-prototype 独立维护。
+三创通用 Android 原型播放器，启动加载 https://proto.3cgroup.cn/ 。H5 演示内容由 sanchuang-dev/base-prototype 独立维护。
 
-V0.1: Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换调试地址；内置受来源限制的 JSBridge v1（见 [调用协议](docs/jsbridge.md)）。
+V0.1 (historical system-WebView release): Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换调试地址；内置受来源限制的 JSBridge v1（见 [调用协议](docs/jsbridge.md)）。
 
 ## Build & install
 
@@ -20,3 +20,8 @@ V0.1: Kotlin WebView、HTTPS 加载、返回、加载失败重试、长按切换
 JDK 17、Android SDK 35、Gradle 8.10.2。手动本地编译命令 `gradle :app:assembleRelease`（未配置签名时产出未签名 APK，不能安装）。
 
 CI 通过不等于真机验收：还需检查首次加载、内部导航、返回、弱网重试、切换 URL、恢复默认首页和覆盖升级。
+
+
+## Chromium 0.2.0 branch (C01, not yet released)
+
+The \`feat/c01-cefrium-chromium\` variant bundles Cefrium Chromium 0.10.2, requires Android 10+ and arm64-v8a, and loads https://proto.3cgroup.cn/ by default. It uses a distinct package \`cn.cgroup.prototype.chromium\`. The old Kotlin System WebView implementation is deliberately excluded from this variant. See \`docs/jsbridge.md\` for the Cefrium bridge protocol. A successful CI compile does **not** establish device acceptance or a signed release.
