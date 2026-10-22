@@ -1,16 +1,17 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.cefrium") version "0.10.2"
 }
 android {
     namespace = "cn.cgroup.prototype"
-    compileSdk = 35
+    compileSdk = 37
     defaultConfig {
-        applicationId = "cn.cgroup.prototype"
-        minSdk = 24
+        applicationId = "cn.cgroup.prototype.chromium"
+        ndk { abiFilters += "arm64-v8a" }
+        minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 3
+        versionName = "0.2.0"
     }
     val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
     val keystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
@@ -32,12 +33,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
-    kotlinOptions { jvmTarget = "17" }
+
 }
 
+configurations.all { exclude(group = "com.google.guava", module = "listenablefuture") }
+
 dependencies {
-    implementation("androidx.webkit:webkit:1.12.1")
+    implementation("com.cefrium:cefrium-sdk:0.10.2")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.mediarouter:mediarouter:1.7.0")
+    implementation("androidx.core:core:1.16.0")
+    implementation("androidx.browser:browser:1.8.0")
 }
