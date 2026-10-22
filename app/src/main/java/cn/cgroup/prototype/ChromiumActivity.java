@@ -13,13 +13,13 @@ import org.json.JSONObject;
 
 /** Standalone Chromium engine. The Android System WebView is never instantiated. */
 public final class ChromiumActivity extends Activity {
-    private static final String HOME = "https://lab.3cgroup.cn/";
+    private static final String HOME = "https://proto.3cgroup.cn/";
     private CefriumBrowser browser;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         browser = CefriumBrowser.createWithSurface(this);
-        browser.setQueryHandler(CefriumBrowser.QueryOriginPolicy.exactly("https://lab.3cgroup.cn"), (id, request, origin, callback) -> {
+        browser.setQueryHandler(CefriumBrowser.QueryOriginPolicy.exactly("https://proto.3cgroup.cn"), (id, request, origin, callback) -> {
             try {
                 JSONObject input = new JSONObject(request);
                 String method = input.optString("method");
