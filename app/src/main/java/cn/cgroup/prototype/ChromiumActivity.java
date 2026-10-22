@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.net.Uri;
-import android.content.Intent;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -19,7 +18,11 @@ public final class ChromiumActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         browser = CefriumBrowser.createWithSurface(this);
-        browser.setQueryHandler(CefriumBrowser.QueryOriginPolicy.exactly("https://proto.3cgroup.cn"), (id, request, origin, callback) -> {
+        browser.setQueryHandler((id, request, origin, callback) -> {
+            if (!isTrustedOrigin(origin)) {
+                callback.failure(403, "origin not allowed");
+                return true;
+            }
             try {
                 JSONObject input = new JSONObject(request);
                 String method = input.optString("method");
@@ -59,6 +62,20 @@ public final class ChromiumActivity extends Activity {
         setContentView(root);
         browser.loadUrl(HOME);
     }
+    /** Cefrium 0.10.2 exposes the caller frame URL, but no QueryOriginPolicy API. */
+    private static boolean isTrustedOrigin(String origin) {
+        if (origin == null) return false;
+        try {
+            java.net.URI uri = new java.net.URI(origin);
+            return "https".equalsIgnoreCase(uri.getScheme())
+                && "proto.3cgroup.cn".equalsIgnoreCase(uri.getHost())
+                && uri.getUserInfo() == null
+                && (uri.getPort() == -1 || uri.getPort() == 443);
+        } catch (java.net.URISyntaxException ignored) {
+            return false;
+        }
+    }
+
     private void showAddressDialog() {
         EditText input = new EditText(this);
         input.setText(HOME);

@@ -4,7 +4,7 @@ The C01 Chromium application uses **Cefrium 0.10.2**, not AndroidX WebKit. It ex
 
 ## Privilege boundary
 
-Only HTTPS documents with **exact** origin `https://proto.3cgroup.cn` may receive native responses. Chromium uses `CefriumBrowser.QueryOriginPolicy.exactly`; arbitrary debug URLs and cross-origin iframes are denied. This API provides the caller origin, **not a proven main-frame flag**: same-origin iframes are not yet independently excluded. Keep methods strictly nonprivileged (static app metadata, short toast). Do not add filesystem, identifiers, shell, arbitrary intent, or privileged methods without an independently verifiable frame isolation guarantee.
+Only HTTPS documents with **exact** origin `https://proto.3cgroup.cn` may receive native responses. Cefrium SDK 0.10.2 provides the calling frame URL to `setQueryHandler(QueryHandler)`; the native handler explicitly checks HTTPS scheme, exact host, port, and absence of userinfo before processing a method. Arbitrary debug URLs and cross-origin iframes are denied. This API provides the caller origin, **not a proven main-frame flag**: same-origin iframes are not yet independently excluded. Keep methods strictly nonprivileged (static app metadata, short toast). Do not add filesystem, identifiers, shell, arbitrary intent, or privileged methods without an independently verifiable frame isolation guarantee.
 
 ## Calling convention
 
